@@ -16,7 +16,7 @@ Pillow==10.1.0
 
 # NLP
 sentencepiece==0.1.99
-tokenizers==0.15.0
+tokenizers>=0.14,<0.15
 nltk==3.8.1
 
 # Model Training

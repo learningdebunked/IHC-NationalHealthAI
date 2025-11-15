@@ -17,10 +17,26 @@ from tqdm import tqdm
 import argparse
 from typing import Dict, Tuple
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent / "backend"))
+# Standalone model definition (no backend dependencies)
+from transformers import AutoTokenizer, AutoModel
 
-from models.eligibility.classifier import EligibilityClassifier
+
+class EligibilityClassifier(nn.Module):
+    """Simplified eligibility classifier for training."""
+    
+    def __init__(self, bert_model="bert-base-uncased", num_classes=2, dropout=0.3):
+        super().__init__()
+        self.tokenizer = AutoTokenizer.from_pretrained(bert_model)
+        self.bert = AutoModel.from_pretrained(bert_model)
+        self.dropout = nn.Dropout(dropout)
+        self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
+    
+    def forward(self, input_ids, attention_mask):
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        pooled = outputs.last_hidden_state[:, 0, :]  # [CLS] token
+        pooled = self.dropout(pooled)
+        logits = self.classifier(pooled)
+        return logits
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -97,7 +113,10 @@ def train_epoch(
         
         # Forward pass
         optimizer.zero_grad()
-        logits = model(text_input)
+        logits = model(
+            input_ids=text_input['input_ids'],
+            attention_mask=text_input['attention_mask']
+        )
         loss = criterion(logits, labels)
         
         # Backward pass
@@ -149,7 +168,10 @@ def evaluate(
             text_input = {k: v.to(device) for k, v in batch['text_input'].items()}
             labels = batch['label'].to(device)
             
-            logits = model(text_input)
+            logits = model(
+                input_ids=text_input['input_ids'],
+                attention_mask=text_input['attention_mask']
+            )
             loss = criterion(logits, labels)
             
             predictions = torch.argmax(logits, dim=1)

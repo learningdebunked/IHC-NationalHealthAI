@@ -8,9 +8,9 @@ model:
   use_behavioral_patterns: true
   
 data:
-  train_path: "../data/meps/train.csv"
-  val_path: "../data/meps/val.csv"
-  test_path: "../data/meps/test.csv"
+  train_path: "../data/processed/spending/train.csv"
+  val_path: "../data/processed/spending/val.csv"
+  test_path: "../data/processed/spending/test.csv"
   # MEPS dataset: https://meps.ahrq.gov/mepsweb/
   
 training:

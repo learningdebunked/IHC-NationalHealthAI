@@ -9,9 +9,9 @@ model:
   enable_uncertainty: true
 
 data:
-  train_path: "../data/eligibility/train.csv"
-  val_path: "../data/eligibility/val.csv"
-  test_path: "../data/eligibility/test.csv"
+  train_path: "../data/processed/eligibility/train.csv"
+  val_path: "../data/processed/eligibility/val.csv"
+  test_path: "../data/processed/eligibility/test.csv"
   
 training:
   batch_size: 32
