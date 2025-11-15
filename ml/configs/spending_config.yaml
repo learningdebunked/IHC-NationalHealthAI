@@ -1,0 +1,65 @@
+# Spending Predictor Training Configuration
+
+model:
+  input_dim: 50
+  hidden_dims: [256, 128, 64]
+  dropout: 0.2
+  use_temporal_features: true
+  use_behavioral_patterns: true
+  
+data:
+  train_path: "../data/meps/train.csv"
+  val_path: "../data/meps/val.csv"
+  test_path: "../data/meps/test.csv"
+  # MEPS dataset: https://meps.ahrq.gov/mepsweb/
+  
+training:
+  batch_size: 64
+  num_epochs: 50
+  learning_rate: 1.0e-3
+  weight_decay: 0.01
+  num_workers: 4
+  gradient_clip: 1.0
+  warmup_epochs: 5
+  
+output:
+  model_dir: "./models/saved"
+  log_dir: "./logs/spending"
+  checkpoint_interval: 5
+  
+features:
+  demographic:
+    - age
+    - gender
+    - family_size
+    - region
+    - education_level
+  
+  health:
+    - chronic_conditions
+    - bmi
+    - smoker
+    - has_insurance
+    - disability_status
+  
+  temporal:
+    - historical_spending
+    - seasonal_patterns
+    - medication_adherence
+    
+optimization:
+  use_amp: true
+  gradient_accumulation_steps: 1
+  early_stopping_patience: 5
+  scheduler: "ReduceLROnPlateau"
+  scheduler_patience: 3
+  
+logging:
+  wandb_project: "ihc-spending"
+  log_interval: 20
+  save_best_only: true
+  
+target_metrics:
+  mape: 0.124  # 12.4% target from paper
+  mae: 500.0
+  r2_score: 0.85

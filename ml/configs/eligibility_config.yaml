@@ -1,0 +1,48 @@
+# Eligibility Classifier Training Configuration
+
+model:
+  bert_model: "bert-base-uncased"
+  num_classes: 2
+  dropout: 0.3
+  max_length: 512
+  use_cross_attention: true
+  enable_uncertainty: true
+
+data:
+  train_path: "../data/eligibility/train.csv"
+  val_path: "../data/eligibility/val.csv"
+  test_path: "../data/eligibility/test.csv"
+  
+training:
+  batch_size: 32
+  num_epochs: 10
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  num_workers: 4
+  gradient_clip: 1.0
+  warmup_steps: 500
+  
+output:
+  model_dir: "./models/saved"
+  log_dir: "./logs/eligibility"
+  checkpoint_interval: 1
+  
+augmentation:
+  text_augmentation: true
+  image_augmentation: true
+  augmentation_prob: 0.3
+  
+optimization:
+  use_amp: true  # Automatic Mixed Precision
+  gradient_accumulation_steps: 1
+  early_stopping_patience: 3
+  
+logging:
+  wandb_project: "ihc-eligibility"
+  log_interval: 10
+  save_best_only: true
+  
+target_metrics:
+  accuracy: 0.953  # 95.3% target from paper
+  precision: 0.95
+  recall: 0.95
