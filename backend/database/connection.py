@@ -9,23 +9,30 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-# Create async engine
-engine = create_async_engine(
-    settings.database_url.replace("postgresql://", "postgresql+asyncpg://"),
-    echo=settings.debug,
-    pool_size=settings.db_pool_size,
-    max_overflow=settings.db_max_overflow,
-    pool_pre_ping=True,
-)
+# Create async engine (only for PostgreSQL)
+# For SQLite, we'll skip async operations
+engine = None
+if settings.database_url.startswith("postgresql"):
+    engine = create_async_engine(
+        settings.database_url.replace("postgresql://", "postgresql+asyncpg://"),
+        echo=settings.debug,
+        pool_size=settings.db_pool_size,
+        max_overflow=settings.db_max_overflow,
+        pool_pre_ping=True,
+    )
+else:
+    logger.warning("Using SQLite - database features disabled. Use PostgreSQL for full functionality.")
 
 # Create async session factory
-AsyncSessionLocal = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autocommit=False,
-    autoflush=False,
-)
+AsyncSessionLocal = None
+if engine:
+    AsyncSessionLocal = async_sessionmaker(
+        engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autocommit=False,
+        autoflush=False,
+    )
 
 # Base class for models
 Base = declarative_base()
@@ -33,6 +40,10 @@ Base = declarative_base()
 
 async def init_db():
     """Initialize database tables."""
+    if not engine:
+        logger.info("Database disabled (using SQLite without async support)")
+        return
+    
     try:
         async with engine.begin() as conn:
             # Import all models here to ensure they're registered
@@ -48,6 +59,9 @@ async def init_db():
 
 async def close_db():
     """Close database connections."""
+    if not engine:
+        return
+    
     try:
         await engine.dispose()
         logger.info("Database connections closed")
@@ -61,6 +75,11 @@ async def get_db() -> AsyncSession:
     Yields:
         AsyncSession: Database session
     """
+    if not AsyncSessionLocal:
+        logger.warning("Database not available")
+        yield None
+        return
+    
     async with AsyncSessionLocal() as session:
         try:
             yield session

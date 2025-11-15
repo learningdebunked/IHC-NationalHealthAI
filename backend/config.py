@@ -2,7 +2,7 @@
 
 import os
 from typing import List, Optional
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 
 
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     app_name: str = "IHC-Platform"
     environment: str = "development"
     debug: bool = True
-    secret_key: str
+    secret_key: str = "dev-secret-key-change-in-production"
     api_version: str = "v1"
     
     # Server
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     workers: int = 4
     
     # Database
-    database_url: str
+    database_url: str = "sqlite:///./ihc_dev.db"
     db_pool_size: int = 20
     db_max_overflow: int = 10
     
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     cache_ttl: int = 3600
     
     # JWT
-    jwt_secret_key: str
+    jwt_secret_key: str = "dev-jwt-secret-key-change-in-production"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
@@ -86,9 +86,11 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 60
     rate_limit_per_hour: int = 1000
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        protected_namespaces=('settings_',)
+    )
         
     @property
     def is_production(self) -> bool:

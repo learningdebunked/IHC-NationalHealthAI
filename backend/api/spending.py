@@ -1,8 +1,8 @@
 """Spending Predictor API endpoints."""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 import logging
 
 from models.spending.predictor import get_predictor
@@ -43,7 +43,7 @@ class SpendingForecast(BaseModel):
     predicted_annual_spending: float
     confidence_interval_95: Dict[str, float]
     monthly_forecast: List[Dict[str, float]]
-    category_breakdown: List[Dict[str, any]]
+    category_breakdown: List[Dict[str, Any]]
     mape: float
     recommendation: str
 
@@ -94,9 +94,9 @@ async def predict_spending(profile: UserProfile):
 
 @router.post("/optimize-contribution", response_model=ContributionStrategy)
 async def optimize_contribution(
-    predicted_spending: float = Field(..., ge=0),
-    current_balance: float = Field(..., ge=0),
-    risk_tolerance: str = Field(default="moderate", pattern="^(conservative|moderate|aggressive)$")
+    predicted_spending: float = Query(..., ge=0),
+    current_balance: float = Query(..., ge=0),
+    risk_tolerance: str = Query(default="moderate", pattern="^(conservative|moderate|aggressive)$")
 ):
     """Optimize HSA/FSA contribution strategy.
     
