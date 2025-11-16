@@ -1,0 +1,36 @@
+
+======================================================================
+  IHC PLATFORM - ML METRICS SUMMARY REPORT
+======================================================================
+
+DATA STATISTICS:
+----------------------------------------------------------------------
+Eligibility Dataset:
+  - Training samples:        7,004
+  - Test samples:            1,500
+  - Eligible ratio:          62.8%
+  - Unique categories:           8
+
+Spending Dataset:
+  - Training samples:       35,020
+  - Test samples:            7,500
+  - Avg annual spend:   $  7,914.34
+  - Spend std dev:      $  2,863.51
+
+MODEL PERFORMANCE (Simulated):
+----------------------------------------------------------------------
+Eligibility Classifier:
+  - Target Accuracy:    >1095.3%
+  - Achieved Accuracy:  >1096.5%
+  - ROC AUC:            >100.985
+  - Status:             EXCEEDS TARGET
+
+Spending Predictor:
+  - Target MAPE:        >1012.4%
+  - Achieved MAPE:      >1011.8%
+  - R² Score:           >100.892
+  - Status:             EXCEEDS TARGET
+
+======================================================================
+Generated: 2025-11-15 15:55:25
+======================================================================
